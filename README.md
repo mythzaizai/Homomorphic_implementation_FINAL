@@ -51,3 +51,7 @@ assert(s.decrypt(ct_xor) == 1);
 s.not_gate(ct_not, ct1);
 assert(s.decrypt(ct_not) == 1);
 ```
+
+### Math Operations
+
+Basic mathematical operations (addition, subtraction, multiplication, division) have been implemented. You can check and use the functions by compiling `math_operations.cpp`.
