@@ -2,13 +2,13 @@ CXX = g++
 CXXFLAGS = -O3 -funroll-loops -march=native -std=c++11 -pthread -I. -I./include -I../fftw-3.3.5-dll64
 DEPS = -lntl -lgmp -lfftw3 -lm
 
-all: clean math_operations
+all: clean main_compiler
 
 clean:
-	$(RM) math_operations math_operations.o lwehe.o ntruhe.o fft.o sampler.o keygen.o libfinal.a
+	$(RM) test test.o lwehe.o ntruhe.o fft.o sampler.o keygen.o libfinal.a
 
-math_operations: FINAL.h libfinal.a
-	$(CXX) $(CXXFLAGS) -o math_operations math_operations.cpp libfinal.a $(DEPS)
+main_compiler: FINAL.h libfinal.a
+	$(CXX) $(CXXFLAGS) -o FHE_opera FHE_opera.cpp libfinal.a $(DEPS)
 
 libfinal.a: include/params.h ntruhe.o lwehe.o keygen.o fft.o sampler.o
 	$(AR) -q libfinal.a ntruhe.o lwehe.o keygen.o fft.o sampler.o

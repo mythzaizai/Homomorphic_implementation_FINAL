@@ -14,7 +14,7 @@ using namespace NTL;
 
 int homomorphic_add(SchemeLWE& s, int num1, int num2) {
     // Calculate the number of bits needed in one line
-    int bits = ceil(log2(abs(num1) + abs(num2) + 1)) + 2; // +1 for sign, +1 for possible carry
+    int bits = ceil(log2(abs(num1) + abs(num2))) + 1;
 
     // Initialize encrypted bit vectors
     vector<Ctxt_LWE> a(bits), b(bits), sum(bits);
@@ -67,8 +67,8 @@ int homomorphic_sub(SchemeLWE& s, int num1, int num2) {
 
     // Encrypt each bit of num1 and num2
     for (int i = 0; i < bits; ++i) {
-        s.encrypt(a[i], (num1 >> i) & 1);  // Encrypt bit i of num1
-        s.encrypt(b[i], (num2 >> i) & 1);  // Encrypt bit i of num2
+        s.encrypt(a[i], (num1 >> i) & 1);
+        s.encrypt(b[i], (num2 >> i) & 1);
     }
 
     // Compute the two's complement of num2
@@ -87,8 +87,8 @@ int homomorphic_sub(SchemeLWE& s, int num1, int num2) {
 
     // Compute the two's complement: b_complement + 1
     vector<Ctxt_LWE> b_twos_complement(bits);
-    Ctxt_LWE carry;  // Used for handling carry in addition
-    s.encrypt(carry, 0);  // Initialize carry to 0
+    Ctxt_LWE carry;
+    s.encrypt(carry, 0);
 
     // Add the least significant bit
     s.xor_gate(b_twos_complement[0], b_complement[0], one[0]);
@@ -143,8 +143,8 @@ int homomorphic_sub(SchemeLWE& s, int num1, int num2) {
 
 int homomorphic_mult(SchemeLWE& s, int num1, int num2) {
     // Determine the number of bits needed, including sign bits
-    int bits1 = ceil(log2(abs(num1) + 1)) + 1; // Number of bits for num1
-    int bits2 = ceil(log2(abs(num2) + 1)) + 1; // Number of bits for num2
+    int bits1 = ceil(log2(abs(num1) + 1)) + 1;
+    int bits2 = ceil(log2(abs(num2) + 1)) + 1;
     int result_bits = bits1 + bits2; // Maximum possible bits for the result
 
     // Initialize encrypted bit vectors
@@ -152,10 +152,10 @@ int homomorphic_mult(SchemeLWE& s, int num1, int num2) {
 
     // Encrypt each bit of num1 and num2
     for (int i = 0; i < bits1; ++i) {
-        s.encrypt(a[i], (num1 >> i) & 1);  // Encrypt bit i of num1
+        s.encrypt(a[i], (num1 >> i) & 1);
     }
     for (int i = 0; i < bits2; ++i) {
-        s.encrypt(b[i], (num2 >> i) & 1);  // Encrypt bit i of num2
+        s.encrypt(b[i], (num2 >> i) & 1);
     }
 
     // Initialize result bits to 0
@@ -181,7 +181,7 @@ int homomorphic_mult(SchemeLWE& s, int num1, int num2) {
 
             // Homomorphic addition: result += shifted_a
             Ctxt_LWE carry;
-            s.encrypt(carry, 0);  // Initialize carry to 0
+            s.encrypt(carry, 0);
             vector<Ctxt_LWE> temp_result(result_bits);
 
             for (int k = 0; k < result_bits; ++k) {
@@ -208,7 +208,7 @@ int homomorphic_mult(SchemeLWE& s, int num1, int num2) {
 
     // Handle sign extension (if the most significant bit is 1, it's negative)
     if (final_result & (1 << (result_bits - 1))) {
-        final_result |= ~((1 << result_bits) - 1);  // Sign extension
+        final_result |= ~((1 << result_bits) - 1);
     }
 
     return final_result;
@@ -250,12 +250,23 @@ int homomorphic_mod(SchemeLWE& s, int num1, int num2) {
     return remainder;
 }
 
+int extended_euclidean(SchemeLWE& s, int a, int b) {
+    while (b != 0) {
+        int temp = homomorphic_mod(s, a, b);
+        a = b;
+        b = temp;
+    }
+    return a;
+}
 
 int main() {
-    // Initialize the homomorphic encryption scheme
+
     SchemeLWE s;
 
-    // Test numbers for addition, subtraction, multiplication, and division
+    ////////////////////////////
+    //   basic operations     //
+    ////////////////////////////
+
     int num1 = 27, num2 = 6;
 
     // addition
@@ -277,6 +288,14 @@ int main() {
     // mod
     int mod_result = homomorphic_mod(s, num1, num2);
     cout << "[INFO] Result of " << num1 << " % " << num2 << ": " << mod_result << endl;
+
+
+    ////////////////////////////////////////
+    //   Extended Euclidean Algorithm     //
+    ////////////////////////////////////////
+
+    int gcd = extended_euclidean(s, 48, 18);
+    cout << "[INFO] Result of extended_euclidea(): " << gcd << endl;
 
     return 0;
 }

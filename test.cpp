@@ -703,7 +703,7 @@ int main(){
     }
 
     /////////////////////////////////////////////////////
-    //   Decimal plaintext homomorphic computation     // 
+    //   Decimal plaintext homomorphic computation     //
     /////////////////////////////////////////////////////
 
     cout << "[INFO] Decimal plaintext homomorphic computation" << endl; 
