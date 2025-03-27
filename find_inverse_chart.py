@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Global variable for maximum iterations (you can change this value as needed)
-max_iter = 30
+max_iter = 25
 
 def newton_inverse_iteration(A, X0, max_iter=max_iter):
     """
@@ -73,6 +73,14 @@ def main():
     plt.ylim(0, 105)
     plt.legend(title="Matrix Size")
     plt.grid(True)
+    plt.annotate(
+        "k₀: Initial guess from $A^T / ||A||_F^2$",
+        xy=(0, 0),
+        xytext=(0, -35),
+        textcoords='offset points',
+        fontsize=12,
+        ha='center',
+    )
     plt.show()
 
 if __name__ == "__main__":
