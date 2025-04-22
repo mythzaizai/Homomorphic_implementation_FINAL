@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Global variable for maximum iterations (you can change this value as needed)
-max_iter = 25
+# Global parameters: maximum number of iterations and number of samples
+max_iter = 30
+num_samples = 100
 
 def newton_inverse_iteration(A, X0, max_iter=max_iter):
     """
@@ -27,47 +28,51 @@ def similarity_percentage(X, A_inv):
     return (1.0 - diff) * 100.0
 
 def main():
-    # Define the list of matrix sizes to test: 2x2, 3x3, ..., up to 10x10.
-    matrix_sizes = list(range(2, 11))
+    # Matrix sizes to test: from 2x2 to 9x9
+    matrix_sizes = list(range(2, 10))
     
-    # Store iteration results (similarity percentages) for plotting
-    iterations = np.arange(0, max_iter + 1)  # from X_0 to X_max_iter
+    # x-axis: from X_0 to X_max_iter
+    iterations = np.arange(0, max_iter + 1)
     similarity_data = {}
 
     for n in matrix_sizes:
-        # Generate a random n x n matrix (scaled up to avoid too small numbers)
-        A = np.random.rand(n, n) * 10
-        # Compute the true inverse of A
-        A_inv = np.linalg.inv(A)
-        # Compute Frobenius norm of A for the initial guess
-        norm_A_F = np.linalg.norm(A, 'fro')
-        # Initial guess: X0 = A^T / (||A||_F^2)
-        X0 = (A.T) / (norm_A_F**2)
+        sum_sims = np.zeros(max_iter + 1)
+        for sample_idx in range(num_samples):
+            # Generate random matrix, compute true inverse and initial guess
+            A = np.random.rand(n, n) * 10
+            A_inv = np.linalg.inv(A)
+            norm_A_F = np.linalg.norm(A, 'fro')
+            X0 = A.T / (norm_A_F**2)
 
-        # Print the random matrices
-        np.set_printoptions(precision=2, suppress=True)
-        print(f"\n---- Matrix size: {n}x{n} ----")
-        print("\nMatrix A:")
-        print(A)
-        print("\nTrue inverse of A:")
-        print(A_inv)
-        
-        # Run Newton iteration up to max_iter iterations (X_0 ... X_max_iter)
-        X_list = newton_inverse_iteration(A, X0, max_iter=max_iter)
-        
-        # Compute similarity percentages for each iteration
-        similarities = [similarity_percentage(X, A_inv) for X in X_list]
-        similarity_data[f"{n}x{n}"] = similarities
+            # Print only the first sample's matrix and its inverse
+            if sample_idx == 0:
+                np.set_printoptions(precision=2, suppress=True)
+                print(f"\n---- Matrix size: {n}x{n} (sample 1 of {num_samples}) ----")
+                print("\nMatrix A:")
+                print(A)
+                print("\nTrue inverse of A:")
+                print(A_inv)
 
-    # Plot all curves on one graph with different colors and labels.
+            # Perform Newton iteration
+            X_list = newton_inverse_iteration(A, X0, max_iter)
+            
+            # Accumulate similarity for each iteration
+            sims = [similarity_percentage(X, A_inv) for X in X_list]
+            sum_sims += np.array(sims)
+
+        # Average similarity across all samples
+        avg_sims = sum_sims / num_samples
+        similarity_data[f"{n}x{n}"] = avg_sims
+
+    # Plotting
     plt.figure(figsize=(10, 7))
     color_map = plt.get_cmap('tab10', len(matrix_sizes))
     for i, n in enumerate(matrix_sizes):
         label = f"{n}x{n}"
-        sims = similarity_data[label]
-        plt.plot(iterations, sims, marker='o', linestyle='-', color=color_map(i), label=label)
+        plt.plot(iterations, similarity_data[label],
+                 marker='o', linestyle='-', color=color_map(i), label=label)
 
-    plt.title("Newton's Method for Inverse: Similarity to True Inverse")
+    plt.title("Newton's Method for Inverse: Average Similarity over 50 Random Matrices")
     plt.xlabel("Iteration (k)")
     plt.ylabel("Similarity (%)")
     plt.ylim(0, 105)
