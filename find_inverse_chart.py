@@ -28,8 +28,8 @@ def similarity_percentage(X, A_inv):
     return (1.0 - diff) * 100.0
 
 def main():
-    # Matrix sizes to test: from 2x2 to 9x9
-    matrix_sizes = list(range(2, 10))
+    # Matrix sizes to test: from 2x2 to 20x20
+    matrix_sizes = list(range(2, 21))
     
     # x-axis: from X_0 to X_max_iter
     iterations = np.arange(0, max_iter + 1)
@@ -44,8 +44,8 @@ def main():
             norm_A_F = np.linalg.norm(A, 'fro')
             X0 = A.T / (norm_A_F**2)
 
-            # Print only the first sample's matrix and its inverse
-            if sample_idx == 0:
+            # Print only the first sample's matrix and its inverse for small n
+            if sample_idx == 0 and n <= 5:
                 np.set_printoptions(precision=2, suppress=True)
                 print(f"\n---- Matrix size: {n}x{n} (sample 1 of {num_samples}) ----")
                 print("\nMatrix A:")
@@ -64,6 +64,14 @@ def main():
         avg_sims = sum_sims / num_samples
         similarity_data[f"{n}x{n}"] = avg_sims
 
+    # Print table of iterations needed to reach ≥90% similarity
+    print(f"\n{'Matrix Size':>10} | {'Iters to ≥90%':>14}")
+    print("-" * 27)
+    for size, sims in similarity_data.items():
+        idx = next((i for i, sim in enumerate(sims) if sim >= 90), None)
+        iters = idx if idx is not None else "N/A"
+        print(f"{size:>10} | {str(iters):>14}")
+
     # Plotting
     plt.figure(figsize=(10, 7))
     color_map = plt.get_cmap('tab10', len(matrix_sizes))
@@ -72,7 +80,7 @@ def main():
         plt.plot(iterations, similarity_data[label],
                  marker='o', linestyle='-', color=color_map(i), label=label)
 
-    plt.title("Newton's Method for Inverse: Average Similarity over 50 Random Matrices")
+    plt.title("Newton's Method for Inverse: Average Similarity over Random Matrices")
     plt.xlabel("Iteration (k)")
     plt.ylabel("Similarity (%)")
     plt.ylim(0, 105)
