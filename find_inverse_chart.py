@@ -99,5 +99,23 @@ def main():
     )
     plt.show()
 
+    # Matrix Size vs Iters to ≥90% plot 
+    sizes = matrix_sizes
+    iters_to_90 = []
+    for n in sizes:
+        sims = similarity_data[f"{n}x{n}"]
+        idx = next((i for i, sim in enumerate(sims) if sim >= 90), None)
+        iters_to_90.append(idx if idx is not None else np.nan)
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(sizes, iters_to_90, marker='o', linestyle='-')
+    plt.title("Iterations to Reach ≥90% Similarity vs Matrix Size")
+    plt.xlabel("Matrix Dimension (n)")
+    plt.ylabel("Iterations to ≥90%")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
     main()
