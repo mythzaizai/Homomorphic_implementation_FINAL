@@ -80,6 +80,9 @@ def main():
         plt.plot(iterations, similarity_data[label],
                  marker='o', linestyle='-', color=color_map(i), label=label)
 
+    # 90% highlight line
+    plt.axhline(y=90, color='red', linestyle='--', linewidth=1)
+
     plt.title("Newton's Method for Inverse: Average Similarity over Random Matrices")
     plt.xlabel("Iteration (k)")
     plt.ylabel("Similarity (%)")
