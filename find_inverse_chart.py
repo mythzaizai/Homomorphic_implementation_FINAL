@@ -29,7 +29,7 @@ def similarity_percentage(X, A_inv):
 
 def main():
     # Matrix sizes to test: from 2x2 to 20x20
-    matrix_sizes = list(range(2, 21))
+    matrix_sizes = list(range(2, 101))
     
     # x-axis: from X_0 to X_max_iter
     iterations = np.arange(0, max_iter + 1)
@@ -72,10 +72,11 @@ def main():
         iters = idx if idx is not None else "N/A"
         print(f"{size:>10} | {str(iters):>14}")
 
-    # Plotting
+    # Plotting (limit to 19 or fewer matrix sizes)
+    max_display_size = min(len(matrix_sizes), 19)  # Limit to 19 or fewer
     plt.figure(figsize=(10, 7))
-    color_map = plt.get_cmap('tab10', len(matrix_sizes))
-    for i, n in enumerate(matrix_sizes):
+    color_map = plt.get_cmap('tab10', max_display_size)
+    for i, n in enumerate(matrix_sizes[:max_display_size]):  # Limit to max_display_size
         label = f"{n}x{n}"
         plt.plot(iterations, similarity_data[label],
                  marker='o', linestyle='-', color=color_map(i), label=label)
@@ -99,7 +100,7 @@ def main():
     )
     plt.show()
 
-    # Matrix Size vs Iters to ≥90% plot 
+    # Matrix Size vs Iters to ≥90% plot (show all matrix sizes)
     sizes = matrix_sizes
     iters_to_90 = []
     for n in sizes:
